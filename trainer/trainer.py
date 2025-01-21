@@ -234,21 +234,53 @@ class GaussianTrainer(object):
             source_path = self.model_cfg.source_path
             cameras_intrinsic_file = os.path.join(source_path, "sparse/0", "cameras.bin")
             max_frames = 300
-            # if os.path.exists(cameras_intrinsic_file):
-            #     images = sorted(glob.glob(os.path.join(source_path, "images", "*.jpg")))
-            #     if len(images)>max_frames:
-            #         images = images[-max_frames:]
-            #     cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
-            #     intr = cam_intrinsics[1]
-            #     focal_length_x = intr.params[0]
-            #     focal_length_y = intr.params[1]
-            #     height = intr.height
-            #     width = intr.width
-            #     intr_mat = np.array(
-            #         [[focal_length_x, 0, width/2], [0, focal_length_y, height/2], [0, 0, 1]])
-            #     self.intrinsic = intr_mat
-            # else:
-            images = sorted(glob.glob(os.path.join(source_path, "images/*.jpg")))
+            images = sorted(glob.glob(os.path.join(source_path, "images/*." + self.model_cfg.image_type)))
+            if len(images) > max_frames:
+                interval = len(images) // max_frames
+                images = images[::interval]
+            print("Total images: ", len(images))
+            width, height = Image.open(images[0]).size
+            if os.path.exists(cameras_intrinsic_file):
+                cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
+                intr = cam_intrinsics[1]
+                focal_length_x = intr.params[0]
+                focal_length_y = intr.params[1]
+                height = intr.height
+                width = intr.width
+                intr_mat = np.array(
+                    [[focal_length_x, 0, width/2], [0, focal_length_y, height/2], [0, 0, 1]])
+            else:
+                # use some hardcoded values
+                fov = 79.0
+                FoVx = fov * math.pi / 180
+                intr_mat = np.eye(3)
+                intr_mat[0, 0] = fov2focal(FoVx, width)
+                intr_mat[1, 1] = fov2focal(FoVx, width)
+                intr_mat[0, 2] = width / 2
+                intr_mat[1, 2] = height / 2
+
+            if min(width, height) > 1000:
+                width = width // 2
+                height = height // 2
+            
+            intr_mat[:2, :] /= 2
+            self.intrinsic = intr_mat
+
+
+            sample_rate = 8
+            ids = np.arange(len(images))
+            self.i_test = ids[int(sample_rate/2)::sample_rate]
+            self.i_train = np.array([i for i in ids if i not in self.i_test])
+            if "eval" in self.model_cfg.mode:
+                self.data = [images[i] for i in self.i_test]
+            else:
+                self.data = [images[i] for i in self.i_train]
+            self.seq_len = len(self.data)
+        elif self.model_cfg.data_type == "phototourism":
+            source_path = self.model_cfg.source_path
+            cameras_intrinsic_file = os.path.join(source_path, "sparse", "cameras.bin")
+            max_frames = 300
+            images = sorted(glob.glob(os.path.join(source_path, "images/*." + self.model_cfg.image_type)))
             if len(images) > max_frames:
                 interval = len(images) // max_frames
                 images = images[::interval]
