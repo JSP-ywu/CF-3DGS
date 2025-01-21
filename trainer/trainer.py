@@ -327,6 +327,7 @@ class GaussianTrainer(object):
             sc = self.model_cfg.data_scene
             source_path = os.path.join(self.model_cfg.source_path, sc)
             # cameras_intrinsic_file = os.path.join(source_path, "sparse", "cameras.bin")
+            gt_file = os.path.join(source_path, 'dataset_train_' + seq + '.txt')
             max_frames = 300
             images = sorted(glob.glob(os.path.join(source_path, "images/*." + self.model_cfg.image_type)))
             if len(images) > max_frames:
@@ -336,27 +337,7 @@ class GaussianTrainer(object):
             width, height = Image.open(images[0]).size
             '''
             TODO:
-                Calculate intrinsics for cambridge dataset
-            '''
-            '''
-            if os.path.exists(cameras_intrinsic_file):
-                cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
-                intr = cam_intrinsics[1]
-                focal_length_x = intr.params[0]
-                focal_length_y = intr.params[1]
-                height = intr.height
-                width = intr.width
-                intr_mat = np.array(
-                    [[focal_length_x, 0, width/2], [0, focal_length_y, height/2], [0, 0, 1]])
-            else:
-                # use some hardcoded values
-                fov = 79.0
-                FoVx = fov * math.pi / 180
-                intr_mat = np.eye(3)
-                intr_mat[0, 0] = fov2focal(FoVx, width)
-                intr_mat[1, 1] = fov2focal(FoVx, width)
-                intr_mat[0, 2] = width / 2
-                intr_mat[1, 2] = height / 2
+                Calculate intrinsics for cambridge dataset via COLMAP
             '''
             # use some hardcoded values
             fov = 79.0

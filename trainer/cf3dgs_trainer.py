@@ -412,7 +412,12 @@ class CFGaussianTrainer(GaussianTrainer):
             expname = pipe.expname
         pipe.convert_SHs_python = True
         optim_opt = copy(self.optim_cfg)
-        result_path = f"output/{expname}/{self.category}_{self.seq_name}"
+        if self.model_cfg.data_type == "cambridge":
+            result_path = f"output/{expname}/{self.model_cfg.data_type}_{self.model_cfg.data_scene}_{self.model_cfg.data_sequence}"
+        elif self.model_cfg.data_type == "phototourism":
+            result_path = f"output/{expname}/{self.model_cfg.data_type}_{self.model_cfg.data_scene}"
+        else:
+            result_path = f"output/{expname}/{self.category}_{self.seq_name}"
         os.makedirs(result_path, exist_ok=True)
 
         pose_dict = dict()
