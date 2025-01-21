@@ -722,7 +722,7 @@ class GaussianTrainer(object):
                     # depth_tensor = self.depth_model.infer_pil(image, output_type='tensor')
                     # depth_tensor[depth_tensor < self.near] = self.near
                     self.mono_depth[idx] = depth_tensor.cuda()
-        elif self.data_type == "custom":
+        elif self.data_type == "custom" or self.data_type == 'cambridge':
             image_name = self.data[idx]
             original_image = Image.open(image_name).convert("RGB")
             width, height = original_image.size

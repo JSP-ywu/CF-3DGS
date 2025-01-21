@@ -8,6 +8,7 @@
 
 import os
 import sys
+import warnings
 from argparse import ArgumentParser, Namespace
 
 from trainer.cf3dgs_trainer import CFGaussianTrainer
@@ -29,27 +30,29 @@ def contruct_pose(poses):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Training script parameters")
-    lp = ModelParams(parser)
-    op = OptimizationParams(parser)
-    pp = PipelineParams(parser)
-    args = parser.parse_args(sys.argv[1:])
-    model_cfg = lp.extract(args)
-    pipe_cfg = pp.extract(args)
-    optim_cfg = op.extract(args)
-    # hydrant/615_99120_197713
-    # hydrant/106_12648_23157
-    # teddybear/34_1403_4393
-    data_path = model_cfg.source_path
-    trainer = CFGaussianTrainer(data_path, model_cfg, pipe_cfg, optim_cfg)
-    start_time = datetime.now()
-    if model_cfg.mode == "train":
-        trainer.train_from_progressive()
-    elif model_cfg.mode == "render":
-        trainer.render_nvs(traj_opt=model_cfg.traj_opt)
-    elif model_cfg.mode == "eval_nvs":
-        trainer.eval_nvs()
-    elif model_cfg.mode == "eval_pose":
-        trainer.eval_pose()
-    end_time = datetime.now()
-    print('Duration: {}'.format(end_time - start_time))
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        parser = ArgumentParser(description="Training script parameters")
+        lp = ModelParams(parser)
+        op = OptimizationParams(parser)
+        pp = PipelineParams(parser)
+        args = parser.parse_args(sys.argv[1:])
+        model_cfg = lp.extract(args)
+        pipe_cfg = pp.extract(args)
+        optim_cfg = op.extract(args)
+        # hydrant/615_99120_197713
+        # hydrant/106_12648_23157
+        # teddybear/34_1403_4393
+        data_path = model_cfg.source_path
+        trainer = CFGaussianTrainer(data_path, model_cfg, pipe_cfg, optim_cfg)
+        start_time = datetime.now()
+        if model_cfg.mode == "train":
+            trainer.train_from_progressive()
+        elif model_cfg.mode == "render":
+            trainer.render_nvs(traj_opt=model_cfg.traj_opt)
+        elif model_cfg.mode == "eval_nvs":
+            trainer.eval_nvs()
+        elif model_cfg.mode == "eval_pose":
+            trainer.eval_pose()
+        end_time = datetime.now()
+        print('Duration: {}'.format(end_time - start_time))
