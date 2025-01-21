@@ -64,6 +64,8 @@ class ModelParams(ParamGroup):
         self.view_dependent = True
         # self.model_type = 'original'
         self.data_type = "tanks"
+        self.data_scene = ""
+        self.data_sequence = ""
         self.image_type = "jpg"
         self.depth_model_type = "dpt"
         self.mode = "train"

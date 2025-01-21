@@ -323,8 +323,10 @@ class GaussianTrainer(object):
                 self.data = [images[i] for i in self.i_train]
             self.seq_len = len(self.data)
         elif self.model_cfg.data_type == "cambridge":
-            source_path = self.model_cfg.source_path
-            cameras_intrinsic_file = os.path.join(source_path, "sparse", "cameras.bin")
+            seq = self.model_cfg.data_sequence
+            sc = self.model_cfg.data_scene
+            source_path = os.path.join(self.model_cfg.source_path, sc)
+            # cameras_intrinsic_file = os.path.join(source_path, "sparse", "cameras.bin")
             max_frames = 300
             images = sorted(glob.glob(os.path.join(source_path, "images/*." + self.model_cfg.image_type)))
             if len(images) > max_frames:
@@ -332,6 +334,11 @@ class GaussianTrainer(object):
                 images = images[::interval]
             print("Total images: ", len(images))
             width, height = Image.open(images[0]).size
+            '''
+            TODO:
+                Calculate intrinsics for cambridge dataset
+            '''
+            '''
             if os.path.exists(cameras_intrinsic_file):
                 cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
                 intr = cam_intrinsics[1]
@@ -350,6 +357,15 @@ class GaussianTrainer(object):
                 intr_mat[1, 1] = fov2focal(FoVx, width)
                 intr_mat[0, 2] = width / 2
                 intr_mat[1, 2] = height / 2
+            '''
+            # use some hardcoded values
+            fov = 79.0
+            FoVx = fov * math.pi / 180
+            intr_mat = np.eye(3)
+            intr_mat[0, 0] = fov2focal(FoVx, width)
+            intr_mat[1, 1] = fov2focal(FoVx, width)
+            intr_mat[0, 2] = width / 2
+            intr_mat[1, 2] = height / 2
 
             if min(width, height) > 1000:
                 width = width // 2

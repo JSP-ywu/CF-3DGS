@@ -62,6 +62,15 @@ python run_cf3dgs.py -s data/Tanks/Francis \ # change the scene path
                      --mode train \
                      --data_type tanks
 ```
+### Training on Custom dataset
+```bash
+python run_cf3dgs.py -s path/to/dataset
+                     --mode train \
+                     --data_type custom \ # Supported dataset: Cambridge landmark dataset, Phototourism dataset
+                     --data_scene scene \ # Each scene of certain dataset
+                     --data_sequence 0 \
+                     --image_type png \ # default: jpg
+```
 
 ### Evaluation
 ```bash
