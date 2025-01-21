@@ -327,9 +327,8 @@ class GaussianTrainer(object):
             sc = self.model_cfg.data_scene
             source_path = os.path.join(self.model_cfg.source_path, sc)
             # cameras_intrinsic_file = os.path.join(source_path, "sparse", "cameras.bin")
-            gt_file = os.path.join(source_path, 'dataset_train_' + seq + '.txt')
             max_frames = 300
-            images = sorted(glob.glob(os.path.join(source_path, "images/*." + self.model_cfg.image_type)))
+            images = sorted(glob.glob(os.path.join(source_path, seq, "*." + self.model_cfg.image_type)))
             if len(images) > max_frames:
                 interval = len(images) // max_frames
                 images = images[::interval]
@@ -354,7 +353,6 @@ class GaussianTrainer(object):
             
             intr_mat[:2, :] /= 2
             self.intrinsic = intr_mat
-
 
             sample_rate = 8
             ids = np.arange(len(images))
@@ -683,7 +681,7 @@ class GaussianTrainer(object):
                                           orthogonal=orthogonal, learn_pose=learn_pose,
                                           pose=pose, load_depth=load_depth,
                                           load_gt=load_gt)
-        elif self.data_type == "custom":
+        elif self.data_type == "custom" or self.data_type == 'cambridge':
             return self.prepare_custom_data(idx, down_sample=down_sample,
                                             orthogonal=orthogonal,
                                             pose=pose,
